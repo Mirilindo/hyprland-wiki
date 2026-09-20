@@ -73,20 +73,45 @@ This essentially means that it is always the `initialTitle` and `initialClass` w
 | group | Sets window group properties. See [group options](#group-window-rule-options) below | string |
 | maximize | Maximizes a window | bool |
 | monitor | Sets the monitor on which a window should open (e.g., `"1"`, `"DP-1"`). Can be suffixed with `" silent"` | string |
-| move | Moves a floating window to the given monitor-local coordinates (e.g., `{100, 200}`, `{"(cursor_x-(window_w*0.5))", "(cursor_y-(window_h*0.5))"}`) | string |
+| move | Moves a floating window to the given monitor-local coordinates. See [position and size](#position-and-size) below | table/string |
 | no_close_for | Makes the window uncloseable with `killactive` for a given number of ms on open | int |
 | no_initial_focus | Disables the initial focus to the window | bool |
 | pin | Pins the window (i.e. show it on all workspaces). _Note: pinning is ignored for non-floating windows. You most likely want to use this together with `float = true`_ | bool |
 | pseudo | Pseudotiles a window | bool |
 | scrolling_width | Set column width for window when starting on a workspace with the scrolling layout | float |
-| size | Resizes a floating window (e.g., `{800, 600}`, "200x500", `{"(monitor_w*0.5)", "(monitor_h*0.5)"}`) | table/string |
+| size | Resizes a floating window. See [position and size](#position-and-size) below | table/string |
 | suppress_event | Ignores specific events. Space-separated: `"fullscreen"`, `"maximize"`, `"activate"`, `"activatefocus"`, `"fullscreenoutput"`, `"x11configurerequest"` | string |
 | tile | Tiles a window | bool |
 | workspace | Sets the workspace on which a window should open. Can also be `"unset"` or suffixed with `" silent"` | string |
 
+#### Position and size
+
+`move` and `size`, and the dynamic `max_size` and `min_size`, all take a pair of values.
+Both of these forms are accepted:
+
+```lua
+size = {800, 600}  -- a table of exactly two elements
+size = "800 600"   -- a single string, the two values separated by whitespace
+```
+
+Each of the two values is either a number or an [expression](#expressions):
+
+```lua
+move = {100, 200}
+move = {"cursor_x - (window_w * 0.5)", "cursor_y - (window_h * 0.5)"}
+max_size = "monitor_w*0.5 monitor_h*0.5"
+```
+
+The string form is split at the first whitespace, so write the expressions without spaces there.
+The table form has no such restriction.
+
+A single value (`size = 800`), a table with more or fewer than two elements, and the `{x = ..., y = ...}` form are all config errors, reported by `hyprctl configerrors`.
+Whitespace is also the only separator the string form accepts: `"800,600"` and `"800x600"` are both errors.
+A comma does work for [`vec2`](../../../naming-conventions#data-types) options, but these four are not `vec2`.
+
 #### Expressions
 
-Expressions are used with `move` and `size`.
+Expressions are used with `move`, `size`, `max_size` and `min_size`.
 They are space-separated (no spaces within each expression).
 All position variables are monitor-local.
 
@@ -120,8 +145,8 @@ Dynamic effects are re-evaluated every time a property changes.
 | idle_inhibit | Sets an idle inhibit rule. Modes: `"none"`, `"always"`, `"focus"`, `"fullscreen"` | string | |
 | immediate | Forces the window to allow tearing | bool | |
 | keep_aspect_ratio | Forces aspect ratio when resizing with the mouse | bool | |
-| max_size | Sets the maximum size for floating windows (e.g., `{800, 600}`) | vec2 | |
-| min_size | Sets the minimum size for floating windows (e.g., `{200, 150}`) | vec2 | |
+| max_size | Sets the maximum size for floating windows. See [position and size](#position-and-size) | table/string | |
+| min_size | Sets the minimum size for floating windows. See [position and size](#position-and-size) | table/string | |
 | nearest_neighbor | Forces nearest-neighbor filtering | bool | |
 | no_anim | Disables animations for the window | bool | |
 | no_auto_hdr | Disables AutoHDR for the window. This is useful to stop programs like `foot` triggering AutoHDR when they are fullscreened | bool | |
